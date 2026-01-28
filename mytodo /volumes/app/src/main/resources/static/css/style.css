@@ -1,0 +1,71 @@
+body { 
+    font-family: sans-serif; 
+    margin: 0; 
+    background-color: #f4f4f9; 
+    /* 上下左右の中央に配置するための設定 */
+    display: flex;
+    justify-content: center; 
+    align-items: flex-start; /* 上端から少し余裕を持たせる */
+    min-height: 100vh;
+    padding-top: 50px;
+}
+
+/* コンテナの幅を固定して中央に */
+.container { 
+    width: 600px; 
+    background: white; 
+    padding: 30px; 
+    border-radius: 8px; 
+    box-shadow: 0 4px 6px rgba(0,0,0,0.1); 
+}
+
+/* リスト項目の設定（テキストとボタンの間隔を作る） */
+.todo-item { 
+    display: flex; 
+    justify-content: space-between; 
+    align-items: center; 
+    border-bottom: 1px solid #eee; 
+    padding: 15px 0;
+	flex-direction: row-reverse;
+    /* ここで全体の幅を使い切ることで、間の余白が最大化されます */
+}
+
+/* 削除ボタンをREDに */
+.btn-del { 
+    background-color: #ff4d4d; /* 明るい赤 */
+    color: white; 
+    border: none; 
+    padding: 8px 15px; 
+    border-radius: 4px; 
+    cursor: pointer; 
+    font-weight: bold;
+    transition: background-color 0.2s;
+}
+
+.btn-del:hover {
+    background-color: #cc0000; /* ホバー時に濃い赤 */
+}
+
+/* 編集リンクのスタイル */
+.btn-edit {
+    color: #007bff;
+    text-decoration: none;
+    margin-right: 15px;
+}
+
+/* リンクの色指定よりも打ち消し線を優先させる */
+.completed { 
+    text-decoration: line-through !important; 
+    color: #aaa !important; 
+    opacity: 0.6; /* 完了した感を出すために少し薄くするのもアリです */
+}
+
+/* もしaタグにスタイルを当てている場合、それに対しても打ち消し線を指定 */
+a.completed {
+    text-decoration: line-through !important;
+}
+
+.todo-text-link {
+    text-decoration: none; /* 通常時は下線を消す */
+    color: #333;
+}
