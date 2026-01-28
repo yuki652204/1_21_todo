@@ -1,74 +1,22 @@
 <!DOCTYPE html>
 <html lang="ja">
 <head>
-<link rel="icon" href="favicon.ico" type="image/x-icon">
     <meta charset="UTF-8">
-    <title>Todo App CRUD</title>
-    <style>
-        body { font-family: sans-serif; margin: 20px; background-color: #f4f4f9; }
-        .container { max-width: 600px; margin: auto; background: white; padding: 20px; border-radius: 8px; }
-        .input-group { display: flex; gap: 10px; margin-bottom: 20px; }
-        input[type="text"] { flex: 1; padding: 10px; }
-        .btn-add { background-color: #28a745; color: white; padding: 10px; border: none; cursor: pointer; }
-        .todo-item { border-bottom: 1px solid #eee; padding: 15px 0; cursor: pointer; }
-        /* 完了状態のスタイル */
-        .completed { text-decoration: line-through; color: #aaa; }
-        .btn-del { background-color: #dc3545; color: white; float: right; border: none; padding: 5px 10px; cursor: pointer; }
-    </style>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Modern Todo App</title>
+    <link rel="stylesheet" href="style.css?v=final">
 </head>
 <body>
     <div class="container">
-        <h1>Todo List</h1>
+        <h1>✨ My Tasks</h1>
         <div class="input-group">
-            <input type="text" id="todoTitle" placeholder="新しいTodo...">
+            <input type="text" id="todo-input" placeholder="新しいタスクを入力...">
             <button class="btn-add" onclick="addTodo()">追加</button>
         </div>
-        <div id="todo-list"></div>
+        <div class="card">
+            <ul id="todo-list"></ul>
+        </div>
     </div>
-
-    <script>
-        async function fetchTodos() {
-            const response = await fetch('/api/todos');
-            const todos = await response.json();
-            const listElement = document.getElementById('todo-list');
-            listElement.innerHTML = '';
-            todos.forEach(todo => {
-                const item = document.createElement('div');
-                item.className = 'todo-item';
-                // 完了状態ならクラスを付与
-                const titleClass = todo.status === 'COMPLETED' ? 'completed' : '';
-                item.innerHTML = `
-                    <button class="btn-del" onclick="event.stopPropagation(); deleteTodo(${todo.id})">削除</button>
-                    <div class="${titleClass}" onclick="toggleTodo(${todo.id})">${todo.title}</div>
-                `;
-                listElement.appendChild(item);
-            });
-        }
-
-        async function toggleTodo(id) {
-            await fetch(`/api/todos/${id}`, { method: 'PUT' });
-            fetchTodos();
-        }
-
-        async function addTodo() {
-            const input = document.getElementById('todoTitle');
-            if (!input.value) return;
-            await fetch('/api/todos', {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ title: input.value, status: 'NOT_STARTED' })
-            });
-            input.value = '';
-            fetchTodos();
-        }
-
-        async function deleteTodo(id) {
-            if (!confirm('削除しますか？')) return;
-            await fetch(`/api/todos/${id}`, { method: 'DELETE' });
-            fetchTodos();
-        }
-
-        fetchTodos();
-    </script>
+    <script src="script.js?v=final"></script>
 </body>
 </html>

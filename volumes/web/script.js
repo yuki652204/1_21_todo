@@ -1,91 +1,82 @@
-document.addEventListener('DOMContentLoaded', () => {
-    const todoInput = document.getElementById('todo-input');
-    const addBtn = document.getElementById('add-btn');
-    const todoBody = document.getElementById('todo-body');
+const API_URL = '/api/todos';
 
-    async function fetchTodos() {
-        const response = await fetch('/api/todos');
-        const todos = await response.json();
-        todoBody.innerHTML = '';
-        todos.forEach(todo => {
-            const isDone = todo.completed || todo.getCompleted;
-            const tr = document.createElement('tr');
-            tr.innerHTML = `
-                <td>
-                    <span id="text-${todo.id}" class="todo-text ${isDone ? 'completed' : ''}">${todo.title}</span>
-                    <input type="text" id="edit-${todo.id}" class="edit-input" style="display:none" value="${todo.title}">
-                </td>
-                <td class="action-btns">
-                    <button class="edit-btn" id="btn-edit-${todo.id}">編集</button>
-                    <button class="delete-btn" id="btn-del-${todo.id}">削除</button>
-                </td>
-            `;
+async function fetchTodos() {
+    const response = await fetch(API_URL);
+    const todos = await response.json();
+    const list = document.getElementById('todo-list');
+    list.innerHTML = '';
+    todos.forEach(todo => {
+        const li = document.createElement('li');
+        li.className = `todo-item ${todo.completed ? 'completed' : ''}`;
+        li.id = `todo-${todo.id}`;
+        // 初期状態の表示
+        renderTodoItem(li, todo);
+        list.appendChild(li);
+    });
+}
 
-            // クリックイベント
-            const textSpan = tr.querySelector(`#text-${todo.id}`);
-            const editInput = tr.querySelector(`#edit-${todo.id}`);
-            const editBtn = tr.querySelector(`#btn-edit-${todo.id}`);
+// 通常時の表示を作成する関数
+function renderTodoItem(li, todo) {
+    li.innerHTML = `
+        <span class="todo-text" onclick="toggleTodo(${todo.id}, '${todo.title}', ${todo.completed})">${todo.title}</span>
+        <div class="actions">
+            <button class="btn-edit" onclick="enterEditMode(${todo.id}, '${todo.title}')">編集</button>
+            <button class="btn-del" onclick="deleteTodo(${todo.id})">削除</button>
+        </div>
+    `;
+}
 
-            // 完了切り替え（テキストクリック）
-            textSpan.onclick = () => toggleTodo(todo, isDone);
+// 編集モード（入力欄を表示）に切り替える関数
+function enterEditMode(id, oldTitle) {
+    const li = document.getElementById(`todo-${id}`);
+    li.innerHTML = `
+        <input type="text" class="edit-input" id="input-${id}" value="${oldTitle}">
+        <div class="actions">
+            <button class="btn-save" onclick="saveEdit(${id})">保存</button>
+            <button class="btn-cancel" onclick="fetchTodos()">戻る</button>
+        </div>
+    `;
+    document.getElementById(`input-${id}`).focus();
+}
 
-            // 編集モード切り替え
-            editBtn.onclick = () => {
-                if (editInput.style.display === 'none') {
-                    editInput.style.display = 'inline';
-                    textSpan.style.display = 'none';
-                    editBtn.innerText = '保存';
-                } else {
-                    saveEdit(todo, editInput.value);
-                }
-            };
+// 非同期で保存を実行
+async function saveEdit(id) {
+    const newTitle = document.getElementById(`input-${id}`).value;
+    if (!newTitle.trim()) return;
 
-            tr.querySelector(`#btn-del-${todo.id}`).onclick = () => deleteTodo(todo.id);
-            todoBody.appendChild(tr);
-        });
-    }
-
-    async function saveEdit(todo, newTitle) {
-        const updatedTodo = { ...todo, title: newTitle };
-        await fetch(`/api/todos/${todo.id}`, {
-            method: 'PUT',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify(updatedTodo)
-        });
-        fetchTodos();
-    }
-
-    async function toggleTodo(todo, currentStatus) {
-        const updatedTodo = { ...todo, completed: !currentStatus, getCompleted: !currentStatus };
-        await fetch(`/api/todos/${todo.id}`, {
-            method: 'PUT',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify(updatedTodo)
-        });
-        fetchTodos();
-    }
-
-    async function addTodo() {
-        const title = todoInput.value;
-        if (!title) return;
-        await fetch('/api/todos', {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ title: title, completed: false })
-        });
-        todoInput.value = '';
-        fetchTodos();
-    }
-
-    async function deleteTodo(id) {
-        await fetch(`/api/todos/${id}`, { method: 'DELETE' });
-        fetchTodos();
-    }
-
-    addBtn.onclick = addTodo;
+    await fetch(`${API_URL}/${id}`, {
+        method: 'PUT',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ title: newTitle.trim(), completed: false })
+    });
     fetchTodos();
-});
+}
 
-// 編集入力欄でEnterキーが押されたら保存する処理を、
-// fetchTodos内のボタン生成ループの後に追記するか、今のロジックを微調整してください。
-// 今回は「保存ボタン」で完結しているので、スタイルの反映を確認しましょう。
+async function addTodo() {
+    const input = document.getElementById('todo-input');
+    const title = input.value.trim();
+    if (!title) return;
+    await fetch(API_URL, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ title: title, completed: false })
+    });
+    input.value = '';
+    fetchTodos();
+}
+
+async function deleteTodo(id) {
+    await fetch(`${API_URL}/${id}`, { method: 'DELETE' });
+    fetchTodos();
+}
+
+async function toggleTodo(id, title, currentStatus) {
+    await fetch(`${API_URL}/${id}`, {
+        method: 'PUT',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ title: title, completed: !currentStatus })
+    });
+    fetchTodos();
+}
+
+fetchTodos();
