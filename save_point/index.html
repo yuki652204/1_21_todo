@@ -1,0 +1,28 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <title>Modern ToDo Table</title>
+    <link rel="stylesheet" href="modern-style.css?v=final_table">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;800&display=swap" rel="stylesheet">
+</head>
+<body>
+    <div class="container" style="max-width: 600px;">
+        <h1>My Tasks</h1>
+        <div class="input-group">
+            <input type="text" id="todo-input" placeholder="新しいタスクを入力...">
+            <button id="add-btn">追加</button>
+        </div>
+        <table id="todo-table">
+            <thead>
+                <tr>
+                    <th style="width: 70%;">Task</th>
+                    <th style="width: 30%;">Actions</th>
+                </tr>
+            </thead>
+            <tbody id="todo-body"></tbody>
+        </table>
+    </div>
+    <script src="script.js?v=final_table"></script>
+</body>
+</html>
