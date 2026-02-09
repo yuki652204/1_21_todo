@@ -1,6 +1,6 @@
 # Modern ToDo App 🚀
 
-Java (Spring Boot) + MySQL + Docker で構築したToDoアプリです。
+Java (Spring Boot) + MySQL + Docker で構築したToDo&Shiftアプリです。
 
 ## 機能
 - **ドラッグ不要の自動ソート**: 完了したタスクは自動で下へ。
