@@ -1,22 +1,14 @@
-const API_URL = "http://localhost:7080/api/todos"; 
+const API_URL = "http://localhost:70/api/todos"; 
 let isEditing = false;
 
 document.addEventListener("DOMContentLoaded", () => {
     fetchTodos();
     
     // 登録ボタンとエンターキーのイベント設定
-    const todoTitleInput = document.getElementById("todoTitle");
-    const addBtn = document.getElementById("addBtn");
-
-    if (todoTitleInput) {
-        todoTitleInput.addEventListener("keypress", (e) => {
-            if (e.key === "Enter") addTodo();
-        });
-    }
-
-    if (addBtn) {
-        addBtn.addEventListener("click", addTodo);
-    }
+    document.getElementById("todoTitle").addEventListener("keypress", (e) => {
+        if (e.key === "Enter") addTodo();
+    });
+    document.getElementById("addBtn").addEventListener("click", addTodo);
 });
 
 // --- 1. データの読み込みと表示 ---
@@ -26,7 +18,7 @@ async function fetchTodos() {
         const todos = await response.json();
 
         const list = document.getElementById("todo-list");
-        if (!list) return;
+        if (!list) return; 
         
         list.innerHTML = "";
         isEditing = false;
@@ -59,7 +51,7 @@ async function fetchTodos() {
             editInput.addEventListener("keydown", async (e) => {
                 if (e.key === "Enter") {
                     e.preventDefault();
-                    isEditing = false;
+                    isEditing = false; 
                     const newTitle = editInput.value.trim();
                     await updateTodo(todo.id, newTitle, todo.date, todo.name, todo.status);
                     fetchTodos();
@@ -93,47 +85,49 @@ async function fetchTodos() {
 
 // --- 2. APIへの新規登録 ---
 async function addTodo() {
-    const dateField = document.getElementById("shiftDate");
-    const nameField = document.getElementById("staffName");
-    const statusField = document.getElementById("shiftStatus");
-    const titleField = document.getElementById("todoTitle");
+    const nameEl = document.getElementById("staffName");
+    const dateEl = document.getElementById("shiftDate");
+    
+    const name = nameEl.value;
+    const date = dateEl.value;
+    const status = document.getElementById("shiftStatus").value;
+    const title = document.getElementById("todoTitle").value;
 
-    if (!dateField || !nameField) return;
-
-    const date = dateField.value;
-    const name = nameField.value;
-    const status = statusField.value;
-    const title = titleField.value;
-
+    // --- エラー表示の強化 ---
     if (!date || !name) {
-        alert("日付と名前を入力してください");
-        return;
+        if (!date) dateEl.style.border = "2px solid red"; 
+        if (!name) nameEl.style.border = "2px solid red"; 
+        
+        alert("赤枠の項目を入力してください");
+        return; // 入力不足ならここで終了
     }
+
+    // 入力されていたら枠を元に戻す
+    dateEl.style.border = "";
+    nameEl.style.border = "";
 
     const payload = {
         date, name, status, title,
         completed: (status === "off") 
     };
 
+    // fetch処理をasync関数(addTodo)の中に正しく収めます
     try {
-        const response = await fetch(API_URL, {
+        await fetch(API_URL, {
             method: "POST",
             headers: { "Content-Type": "application/json" },
             body: JSON.stringify(payload)
         });
 
-        if (response.ok) {
-            nameField.value = "";
-            titleField.value = "";
-            fetchTodos();
-        } else {
-            console.error("Registration failed");
-        }
+        document.getElementById("staffName").value = "";
+        document.getElementById("todoTitle").value = "";
+        fetchTodos();
     } catch (error) {
-        console.error("Error adding todo:", error);
+        console.error("Post Error:", error);
     }
-}
+} // ← ここでaddTodo関数を閉じる
 
+// --- 3. APIの更新・削除 ---
 async function updateTodo(id, title, date, name, status) {
     await fetch(`${API_URL}/${id}`, {
         method: "PUT",
@@ -147,6 +141,7 @@ async function deleteTodo(id) {
     fetchTodos();
 }
 
+// --- 4. ユーティリティ ---
 function enterEditMode(text, input) {
     isEditing = true;
     text.style.display = "none";

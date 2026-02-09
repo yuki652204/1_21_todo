@@ -18,7 +18,7 @@ async function fetchTodos() {
         const todos = await response.json();
 
         const list = document.getElementById("todo-list");
-        if (!list) return; // リスト要素が見つからない場合は中断
+        if (!list) return; 
         
         list.innerHTML = "";
         isEditing = false;
@@ -43,17 +43,15 @@ async function fetchTodos() {
             const taskDetail = item.querySelector(".task-detail");
             const delBtn = item.querySelector(".delete-btn");
 
-            // --- 1. 編集モードの起動（ダブルクリック） ---
             taskDetail.addEventListener("dblclick", () => {
                 if (isEditing) return;
                 enterEditMode(taskDetail, editInput);
             });
 
-            // --- 2. 編集の確定 (Enter) と キャンセル (Escape) ---
             editInput.addEventListener("keydown", async (e) => {
                 if (e.key === "Enter") {
                     e.preventDefault();
-                    isEditing = false; // 先にフラグを折って blur との競合を防ぐ
+                    isEditing = false; 
                     const newTitle = editInput.value.trim();
                     await updateTodo(todo.id, newTitle, todo.date, todo.name, todo.status);
                     fetchTodos();
@@ -64,9 +62,7 @@ async function fetchTodos() {
                 }
             });
 
-            // --- 3. 枠外クリック（フォーカス喪失）でキャンセル ---
             editInput.addEventListener("blur", () => {
-                // Enter確定時の再描画とぶつからないよう少しだけ遅らせる
                 setTimeout(() => {
                     if (isEditing) {
                         isEditing = false;
@@ -75,7 +71,6 @@ async function fetchTodos() {
                 }, 150);
             });
 
-            // --- 4. 削除ボタン ---
             delBtn.onclick = (e) => {
                 e.stopPropagation();
                 if (confirm(`${todo.name}さんのデータを削除しますか？`)) deleteTodo(todo.id);
@@ -87,33 +82,50 @@ async function fetchTodos() {
         console.error("Fetch Error:", e);
     }
 }
+
 // --- 2. APIへの新規登録 ---
 async function addTodo() {
-    const date = document.getElementById("shiftDate").value;
-    const name = document.getElementById("staffName").value;
+    const nameEl = document.getElementById("staffName");
+    const dateEl = document.getElementById("shiftDate");
+    
+    const name = nameEl.value;
+    const date = dateEl.value;
     const status = document.getElementById("shiftStatus").value;
     const title = document.getElementById("todoTitle").value;
 
-    // if (!date || !name) {
-       // alert("日付と名前を入力してください");
-        //return;
-    //}
+    // --- エラー表示の強化 ---
+    if (!date || !name) {
+        if (!date) dateEl.style.border = "2px solid red"; 
+        if (!name) nameEl.style.border = "2px solid red"; 
+        
+        alert("赤枠の項目を入力してください");
+        return; // 入力不足ならここで終了
+    }
+
+    // 入力されていたら枠を元に戻す
+    dateEl.style.border = "";
+    nameEl.style.border = "";
 
     const payload = {
         date, name, status, title,
         completed: (status === "off") 
     };
 
-    await fetch(API_URL, {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(payload)
-    });
+    // fetch処理をasync関数(addTodo)の中に正しく収めます
+    try {
+        await fetch(API_URL, {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify(payload)
+        });
 
-    document.getElementById("staffName").value = "";
-    document.getElementById("todoTitle").value = "";
-    fetchTodos();
-}
+        document.getElementById("staffName").value = "";
+        document.getElementById("todoTitle").value = "";
+        fetchTodos();
+    } catch (error) {
+        console.error("Post Error:", error);
+    }
+} // ← ここでaddTodo関数を閉じる
 
 // --- 3. APIの更新・削除 ---
 async function updateTodo(id, title, date, name, status) {
