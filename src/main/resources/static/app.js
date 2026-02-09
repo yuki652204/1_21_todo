@@ -94,10 +94,10 @@ async function addTodo() {
     const status = document.getElementById("shiftStatus").value;
     const title = document.getElementById("todoTitle").value;
 
-    if (!date || !name) {
-        alert("日付と名前を入力してください");
-        return;
-    }
+    // if (!date || !name) {
+       // alert("日付と名前を入力してください");
+        //return;
+    //}
 
     const payload = {
         date, name, status, title,

@@ -1,5 +1,6 @@
 package com.example.todo;
 
+import javax.validation.Valid;
 import java.util.List;
 
 import org.springframework.beans.factory.annotation.Autowired;
@@ -12,6 +13,9 @@ import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
+
+
+
 
 @RestController
 @RequestMapping("/api/todos")
@@ -28,10 +32,10 @@ public class TodoController {
     }
 
     @PostMapping
-    public Todo createTodo(@RequestBody Todo todo) {
+    public Todo createTodo(@Valid @RequestBody Todo todo) { // @Valid を追加
         return todoRepository.save(todo);
     }
-
+    
     @PutMapping("/{id}")
     public Todo updateTodo(@PathVariable("id") Long id, @RequestBody Todo todoDetails) {
         Todo todo = todoRepository.findById(id)

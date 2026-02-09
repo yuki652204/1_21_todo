@@ -5,16 +5,27 @@ import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
 
+import javax.validation.constraints.NotBlank;
+
+
+
 @Entity
 public class Todo {
+	
+	
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
     
+    
     // シフト管理用に追加
+    @NotBlank(message = "日付は必須です")
     private String date;      // 2026-02-08
+    
+    @NotBlank(message = "名前は必須です")
     private String name;      // スタッフ名
+    
     private String status;    // work or off
     
     // 以前からの項目（作業内容として利用）
