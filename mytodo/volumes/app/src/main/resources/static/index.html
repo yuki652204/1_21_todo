@@ -1,0 +1,32 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <title>Shift Manager</title>
+    <link rel="stylesheet" href="style.css?v=2">
+</head>
+<body>
+    <div class="container">
+        <h1>Todo & Shift Manager</h1>
+
+        <div class="input-group">
+            <div class="input-row-top">
+                <input type="date" id="shiftDate">
+                <input type="text" id="staffName" placeholder="スタッフ名">
+                <select id="shiftStatus">
+                    <option value="work">出勤</option>
+                    <option value="off">休み</option>
+                </select>
+            </div>
+            
+            <input type="text" id="todoTitle" placeholder="作業内容（カンマ区切り）">
+            
+            <button id="addBtn" class="btn-add">登録する</button>
+        </div>
+
+        <ul id="todo-list"></ul>
+    </div>
+
+    <script src="app.js" defer></script>
+</body>
+</html>
