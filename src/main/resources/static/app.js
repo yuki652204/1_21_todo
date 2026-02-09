@@ -1,75 +1,61 @@
-
-// Nginx(70番)を経由してAPIにアクセスする
-const API_URL = "http://localhost:70/api/todos";
+const API_URL = "http://localhost:70/api/todos"; 
 let isEditing = false;
 
 document.addEventListener("DOMContentLoaded", () => {
     fetchTodos();
-
-    const input = document.getElementById("todoTitle");
-    input.addEventListener("keypress", (e) => {
+    
+    // 登録ボタンとエンターキーのイベント設定
+    document.getElementById("todoTitle").addEventListener("keypress", (e) => {
         if (e.key === "Enter") addTodo();
     });
-
     document.getElementById("addBtn").addEventListener("click", addTodo);
 });
 
+// --- 1. データの読み込みと表示 ---
 async function fetchTodos() {
     try {
         const response = await fetch(API_URL);
         const todos = await response.json();
 
-        // 未完了を上に、完了済みを下にソート
-        todos.sort((a, b) => a.completed - b.completed);
-
         const list = document.getElementById("todo-list");
+        if (!list) return; // リスト要素が見つからない場合は中断
+        
         list.innerHTML = "";
         isEditing = false;
 
         todos.forEach(todo => {
-            // li要素として作成（ulの子要素として適切）
             const item = document.createElement("li");
-            item.className = `todo-item ${todo.completed ? "completed" : ""}`;
+            item.className = `todo-item ${todo.status === "off" ? "completed" : ""}`;
 
             item.innerHTML = `
                 <div class="todo-content">
-                    <span class="todo-text">${todo.title}</span>
-                    <input class="edit-input" value="${todo.title}" style="display:none;">
+                    <div class="todo-text">
+                        <strong>${todo.date}</strong> | ${todo.name} 
+                        <span class="status-badge ${todo.status}">${todo.status === 'work' ? '出勤' : '休み'}</span>
+                        <div class="task-detail">${todo.title || "（作業内容なし）"}</div>
+                    </div>
+                    <input class="edit-input" value="${todo.title || ''}" style="display:none;">
                 </div>
                 <button class="delete-btn" title="削除">×</button>
             `;
 
-            const text = item.querySelector(".todo-text");
-            const input = item.querySelector(".edit-input");
+            const editInput = item.querySelector(".edit-input");
+            const taskDetail = item.querySelector(".task-detail");
             const delBtn = item.querySelector(".delete-btn");
 
-            let clickTimer = null;
-            const CLICK_DELAY = 250;
-
-            // --- シングルクリック(完了) vs ダブルクリック(編集) ---
-            text.addEventListener("click", () => {
+            // --- 1. 編集モードの起動（ダブルクリック） ---
+            taskDetail.addEventListener("dblclick", () => {
                 if (isEditing) return;
-
-                if (clickTimer) {
-                    clearTimeout(clickTimer);
-                    clickTimer = null;
-                    enterEditMode(text, input);
-                } else {
-                    clickTimer = setTimeout(async () => {
-                        await toggleTodo(todo);
-                        clickTimer = null;
-                    }, CLICK_DELAY);
-                }
+                enterEditMode(taskDetail, editInput);
             });
 
-            // --- 編集の確定とキャンセル ---
-            input.addEventListener("keydown", async (e) => {
+            // --- 2. 編集の確定 (Enter) と キャンセル (Escape) ---
+            editInput.addEventListener("keydown", async (e) => {
                 if (e.key === "Enter") {
-                    const newTitle = input.value.trim();
-                    if (newTitle && newTitle !== todo.title) {
-                        await updateTodo(todo.id, newTitle, todo.completed);
-                    }
-                    isEditing = false;
+                    e.preventDefault();
+                    isEditing = false; // 先にフラグを折って blur との競合を防ぐ
+                    const newTitle = editInput.value.trim();
+                    await updateTodo(todo.id, newTitle, todo.date, todo.name, todo.status);
                     fetchTodos();
                 }
                 if (e.key === "Escape") {
@@ -78,13 +64,22 @@ async function fetchTodos() {
                 }
             });
 
-            // --- 削除 ---
-            delBtn.addEventListener("click", (e) => {
-                e.stopPropagation();
-                if (confirm(`「${todo.title}」を削除しますか？`)) {
-                    deleteTodo(todo.id);
-                }
+            // --- 3. 枠外クリック（フォーカス喪失）でキャンセル ---
+            editInput.addEventListener("blur", () => {
+                // Enter確定時の再描画とぶつからないよう少しだけ遅らせる
+                setTimeout(() => {
+                    if (isEditing) {
+                        isEditing = false;
+                        fetchTodos();
+                    }
+                }, 150);
             });
+
+            // --- 4. 削除ボタン ---
+            delBtn.onclick = (e) => {
+                e.stopPropagation();
+                if (confirm(`${todo.name}さんのデータを削除しますか？`)) deleteTodo(todo.id);
+            };
 
             list.appendChild(item);
         });
@@ -92,35 +87,40 @@ async function fetchTodos() {
         console.error("Fetch Error:", e);
     }
 }
-
-// 共通の入力/更新/削除ロジック（変更なし）
+// --- 2. APIへの新規登録 ---
 async function addTodo() {
-    const input = document.getElementById("todoTitle");
-    const title = input.value.trim();
-    if (!title) return;
+    const date = document.getElementById("shiftDate").value;
+    const name = document.getElementById("staffName").value;
+    const status = document.getElementById("shiftStatus").value;
+    const title = document.getElementById("todoTitle").value;
+
+    if (!date || !name) {
+        alert("日付と名前を入力してください");
+        return;
+    }
+
+    const payload = {
+        date, name, status, title,
+        completed: (status === "off") 
+    };
+
     await fetch(API_URL, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ title, completed: false })
+        body: JSON.stringify(payload)
     });
-    input.value = "";
+
+    document.getElementById("staffName").value = "";
+    document.getElementById("todoTitle").value = "";
     fetchTodos();
 }
 
-async function toggleTodo(todo) {
-    await fetch(`${API_URL}/${todo.id}`, {
-        method: "PUT",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ title: todo.title, completed: !todo.completed })
-    });
-    fetchTodos();
-}
-
-async function updateTodo(id, title, completed) {
+// --- 3. APIの更新・削除 ---
+async function updateTodo(id, title, date, name, status) {
     await fetch(`${API_URL}/${id}`, {
         method: "PUT",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ title, completed })
+        body: JSON.stringify({ title, date, name, status, completed: (status === "off") })
     });
 }
 
@@ -129,10 +129,10 @@ async function deleteTodo(id) {
     fetchTodos();
 }
 
+// --- 4. ユーティリティ ---
 function enterEditMode(text, input) {
     isEditing = true;
     text.style.display = "none";
     input.style.display = "inline-block";
     input.focus();
-    input.setSelectionRange(input.value.length, input.value.length); // カーソルを末尾に
 }

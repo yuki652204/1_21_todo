@@ -2,27 +2,31 @@
 <html lang="ja">
 <head>
     <meta charset="UTF-8">
-    <title>Todo App CRUD</title>
-	<link rel="icon" href="data:image/svg+xml,
-	<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'>
-	  <text y='.9em' font-size='90'>✅</text>
-	</svg>">
-    
-	<link rel="stylesheet" href="style.css?v=2">
+    <title>Shift Manager</title>
+    <link rel="stylesheet" href="style.css?v=2">
 </head>
 <body>
-	<div class="container">
-	  <h1>Todo List</h1>
+    <div class="container">
+        <h1>Todo & Shift Manager</h1>
 
-	  <div class="input-group">
-	    <input type="text" id="todoTitle" placeholder="新しいTodo...">
-		<button id="addBtn" class="btn-add">追加</button>
+        <div class="input-group">
+            <div class="input-row-top">
+                <input type="date" id="shiftDate">
+                <input type="text" id="staffName" placeholder="スタッフ名">
+                <select id="shiftStatus">
+                    <option value="work">出勤</option>
+                    <option value="off">休み</option>
+                </select>
+            </div>
+            
+            <input type="text" id="todoTitle" placeholder="作業内容（カンマ区切り）">
+            
+            <button id="addBtn" class="btn-add">登録する</button>
+        </div>
 
-	  </div>
+        <ul id="todo-list"></ul>
+    </div>
 
-	  <ul id="todo-list"></ul>
-	</div>
-
-	<script src="app.js" defer></script>
+    <script src="app.js" defer></script>
 </body>
 </html>
