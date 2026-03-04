@@ -1,14 +1,43 @@
-# Modern ToDo App 🚀
+# Spring Boot + Kubernetes TODO App
 
-Java (Spring Boot) + MySQL + Docker で構築したToDo&Shiftアプリです。
+このプロジェクトは、Spring Bootで作られたTODO管理アプリを、Kubernetes (kind) 環境で動作させるためのフルスタック・デモです。
+MySQLのデータ永続化（PVC）と、Ingressによるトラフィック制御を実装しています。
 
-## 機能
-- **ドラッグ不要の自動ソート**: 完了したタスクは自動で下へ。
-- **直感的な編集**: ダブルクリックでタイトル変更。
-- **モダンデザイン**: ダークモード対応UI。
+## 技術スタック
+- **Java 17 / Spring Boot 3**
+- **MySQL 8.0**
+- **Kubernetes (kind)**
+- **Docker**
+- **Nginx Ingress Controller**
 
-## 起動方法
+## 実行手順
+
+### 1. Javaアプリのビルド (JAR作成)
+静的ファイル（app.js）の変更を反映させるため、必ず最初に実行してください。
 ```bash
-cd docker
-docker-compose up -d
+mvn clean package -DskipTests
 ```
+
+### 2. Dockerイメージの作成
+```bash
+docker build -t todo-app:v1 .
+```
+
+### 3. Kubernetes (kind) へのロード
+```bash
+kind load docker-image todo-app:v1 --name kind
+```
+
+### 4. マニフェストの適用
+```bash
+kubectl apply -f k8s/mysql-deployment.yaml
+kubectl apply -f k8s/todo-deployment.yaml
+kubectl apply -f k8s/todo-service.yaml
+kubectl apply -f k8s/todo-ingress.yaml
+```
+
+### 5. アクセス方法
+```bash
+kubectl port-forward svc/todo-service 7080:80
+```
+アクセス先: [http://localhost:7080](http://localhost:7080)
