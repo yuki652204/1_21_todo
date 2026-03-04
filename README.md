@@ -1,6 +1,7 @@
 # Spring Boot + Kubernetes TODO App
 
 このプロジェクトは、Spring Bootで作られたTODO管理アプリを、Kubernetes (kind) 環境で動作させるためのフルスタック・デモです。
+単なる「TODOアプリ」ではなく、「Spring Boot + MySQL + Kubernetes (kind) + Docker + Ingress」 という、モダンなインフラを使ったアプリです。
 MySQLのデータ永続化（PVC）と、Ingressによるトラフィック制御を実装しています。
 
 ## 技術スタック
