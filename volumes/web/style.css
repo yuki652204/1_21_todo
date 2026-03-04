@@ -184,11 +184,21 @@ ul {
     color: var(--danger);
 }
 
+/* リスト全体を少し薄くする */
 .completed {
-    opacity: 0.6;
+    opacity: 0.7;
 }
 
-.completed .todo-text {
+/* 打ち消し線を「作業内容（task-detail）」だけに適用する */
+.completed .task-detail {
     text-decoration: line-through;
     color: var(--text-muted);
+    border-left-color: #cbd5e1; /* 線の色もグレーに落とすと「終わった感」が出ます */
+    background: #f1f5f9;
+}
+
+/* 「休み」の時は日付や名前には線を引かない（お好みで） */
+.completed .todo-text {
+    text-decoration: none; 
+    color: var(--text-main);
 }

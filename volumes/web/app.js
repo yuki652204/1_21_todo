@@ -25,7 +25,9 @@ async function fetchTodos() {
 
         todos.forEach(todo => {
             const item = document.createElement("li");
-            item.className = `todo-item ${todo.status === "off" ? "completed" : ""}`;
+           
+			// 修正後（statusがoff、または completedがtrue のどちらでも線を引く）
+						item.className = `todo-item ${(todo.status === "off" || todo.completed) ? "completed" : ""}`;
 
             item.innerHTML = `
                 <div class="todo-content">
