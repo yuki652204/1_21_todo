@@ -1,5 +1,4 @@
-const API_URL = "http://localhost:70/api/todos"; 
-//JSが、**「http://localhost:70/api/todos」という文字列（サーバーの住所）**を、定数API_URLに代入した
+const API_URL = "/api/todos";//JSが、**「http://localhost:70/api/todos」という文字列（サーバーの住所）**を、定数API_URLに代入した
 let isEditing = false;
 //JSが、**「今は編集中ではない」という状態（false）**を、変数isEditing（信号機）に代入した
 document.addEventListener("DOMContentLoaded", () => {

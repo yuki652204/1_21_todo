@@ -1,0 +1,32 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: biz-data-deployment
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: biz-data-app
+  template:
+    metadata:
+      labels:
+        app: biz-data-app
+    spec:
+      containers:
+      - name: biz-data-container
+        image: biz-data-web:v2  # v2 のまま
+        imagePullPolicy: IfNotPresent # ここを IfNotPresent に戻す
+        ports:
+        - containerPort: 8080
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: biz-data-service
+spec:
+  selector:
+    app: biz-data-app
+  ports:
+    - protocol: TCP
+      port: 80
+      targetPort: 8080
