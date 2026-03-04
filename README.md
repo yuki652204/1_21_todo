@@ -42,4 +42,4 @@ kubectl apply -f k8s/todo-ingress.yaml
 kubectl port-forward svc/todo-service 7080:80
 ```
 アクセス先: [http://localhost:7080](http://localhost:7080)
-　　　　　　　kubectl port-forward svc/todo-service 7080:80
+　　　　　　[http://k8s.biz-data.local:8080]　
