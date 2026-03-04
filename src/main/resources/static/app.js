@@ -1,15 +1,21 @@
 const API_URL = "http://localhost:70/api/todos"; 
+//JSが、**「http://localhost:70/api/todos」という文字列（サーバーの住所）**を、定数API_URLに代入した
 let isEditing = false;
-
+//JSが、**「今は編集中ではない」という状態（false）**を、変数isEditing（信号機）に代入した
 document.addEventListener("DOMContentLoaded", () => {
     fetchTodos();
-    
+    //JSが、**document（HTML全体のオブジェクト）に対し、「HTMLの読み込みがすべて完了（DOMContentLoaded）した」ら動くようにお願い（予約）**した。
     // 登録ボタンとエンターキーのイベント設定
+	
     document.getElementById("todoTitle").addEventListener("keypress", (e) => {
+		////JSが、**「todoTitle」というIDを持つ入力欄（オブジェクト）をHTMLから探し出し、その部品に対して「キーが押されている間（keypress）」に動くようにお願い（予約）**した。
         if (e.key === "Enter") addTodo();
+		//（キーが押された時）JSが、押されたキー（e.key）が「Enter」かどうかを判定し、**「Enter」であれば addTodo 関数を呼び出し（実行）**した。
     });
+	
     document.getElementById("addBtn").addEventListener("click", addTodo);
 });
+//JSが、**「addBtn」というIDを持つ登録ボタン（オブジェクト）をHTMLから探し出し、その部品に対して「クリック（click）」されたら addTodo 関数を動かすようにお願い（予約）**した。
 
 // --- 1. データの読み込みと表示 ---
 async function fetchTodos() {
@@ -25,8 +31,10 @@ async function fetchTodos() {
 
         todos.forEach(todo => {
             const item = document.createElement("li");
-            item.className = `todo-item ${todo.status === "off" ? "completed" : ""}`;
-
+           
+			// 修正後（statusがoff、または completedがtrue のどちらでも線を引く）
+			item.className = `todo-item ${(todo.status === "off" || todo.completed) ? "completed" : ""}`;
+			
             item.innerHTML = `
                 <div class="todo-content">
                     <div class="todo-text">
@@ -71,13 +79,19 @@ async function fetchTodos() {
                 }, 150);
             });
 
+			//削除ボタン
             delBtn.onclick = (e) => {
                 e.stopPropagation();
                 if (confirm(`${todo.name}さんのデータを削除しますか？`)) deleteTodo(todo.id);
             };
+			//JSが、**delBtn（借りてきたボタンオブジェクト）**の、**onclickというプロパティ（予約表）**にアクセスした。
+			//JSが、その予約表に**「クリックされた時に実行する処理」**を、**代入（セット）**した。
+			//delBtnが、**e（クリックされた時の状況データ）**を受け取り、**e.stopPropagation()（他の場所への影響を止める）**というお願いを実行した。
+			//delBtnが、confirm（確認ダイアログ）を出し、「OK」が押された場合のみ deleteTodo 関数を**呼び出し（リクエスト）**した。
 
             list.appendChild(item);
         });
+		
     } catch (e) {
         console.error("Fetch Error:", e);
     }

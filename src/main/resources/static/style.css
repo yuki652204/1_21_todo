@@ -192,3 +192,37 @@ ul {
     text-decoration: line-through;
     color: var(--text-muted);
 }
+
+
+
+/* 作業内容が完了、または「休み」の時に適用するスタイル */
+.completed-text {
+    text-decoration: line-through;
+    color: #888; /* 少しグレーアウトさせると「終わった感」が出ます */
+}
+
+/* ついでに「休み」のバッジスタイルも作っておくと見やすいです */
+.status-off {
+    color: #e74c3c;
+    font-weight: bold;
+}
+
+/*打ち消し線*/
+.strike {
+    text-decoration: line-through;
+    color: #999; /* 完了感が出るように少し薄くするのがコツです */
+}
+
+/* リストアイテムが completed クラスを持っている場合 */
+.todo-item.completed .task-detail {
+    text-decoration: line-through; /* 打ち消し線 */
+    color: #888;                   /* 文字を薄くする */
+    opacity: 0.7;                  /* 全体的に透明度を下げる */
+}
+
+/* ついでに「休み」バッジも少し目立たなくすると統一感が出ます */
+.status-badge.off {
+    background-color: #e0e0e0;
+    color: #666;
+    text-decoration: none !important; /* バッジ自体には線を引かない */
+}

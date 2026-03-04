@@ -18,8 +18,19 @@ import org.springframework.web.bind.annotation.RestController;
 
 
 @RestController
+
+
+//location /api/ {
+    //proxy_pass http://app:7080;  # /api で始まる通信は Java(Spring) に投げる
+//}
+//location / {
+   // root /usr/share/nginx/html;  # それ以外は HTMLファイルを返す
+//}
 @RequestMapping("/api/todos")
+
+//* はワイルドカードで、**「世界中のどこ（どのURLやポート）からのリクエストでも受け入れる」**という意味
 @CrossOrigin(origins = "*")
+
 public class TodoController {
 
     @Autowired
@@ -53,7 +64,7 @@ public class TodoController {
         
         return todoRepository.save(todo);
     }
-
+//JSのお願い「Delate」を、Java側（Controller）で受け取る
     @DeleteMapping("/{id}")
     public void deleteTodo(@PathVariable("id") Long id) {
         todoRepository.deleteById(id);
